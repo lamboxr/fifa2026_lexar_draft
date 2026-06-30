@@ -63,41 +63,6 @@
             margin-top: 10px;
             display: none;
         }
-
-        /* 悬浮小红书按钮 */
-        .float-btn {
-            position: fixed;
-            right: 16px;
-            top: 40vh;
-            /* 距离屏幕上边缘40% */
-            z-index: 1000;
-            width: 48px;
-            height: 48px;
-            background: linear-gradient(135deg, #ff2442 0%, #ff1e1e 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 12px rgba(255, 36, 66, 0.3);
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .float-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 16px rgba(255, 36, 66, 0.4);
-        }
-
-        .float-btn:active {
-            transform: scale(0.95);
-        }
-
-        .float-btn img {
-            width: 24px;
-            height: 24px;
-            filter: brightness(0) invert(1);
-        }
     </style>
 </head>
 
@@ -105,32 +70,23 @@
     <div class="card">
         <div class="label">标题</div>
         <div id="titleContent" class="text-area">
-            这里填写你的标题文字
+雷克沙陪我们看球！阿根廷🇦🇷球迷线下观赛太燃了⚽
         </div>
         <button class="copy-btn" onclick="copyTitle()">复制标题</button>
-        <div id="tipTitle" class="tip">✅ 标题已复制，可直接粘贴</div>
+        <div id="tipTitle" class="tip">✅ 标题已复制，去小红书粘贴吧</div>
     </div>
 
     <div class="card">
         <div class="label">文案</div>
         <div id="descContent" class="text-area">
-            这里填写正文文案
-            支持自动换行
-            多行内容格式会保留
-            测试换行
+蓝白信仰集结，全场一起为阿根廷🇦🇷呐喊！
+雷克沙存储，冠军之选，用存储留住每一个热血瞬间。
+阿根廷🇦🇷加油，全力冲胜！
+@Lexar雷克沙 #雷克沙 #雷克沙嘉年华
         </div>
         <button class="copy-btn" onclick="copyDesc()">复制文案</button>
-        <div id="tipDesc" class="tip">✅ 文案已复制，可直接粘贴</div>
+        <div id="tipDesc" class="tip">✅ 文案已复制，去小红书粘贴吧</div>
     </div>
-
-    <!-- 悬浮小红书按钮 -->
-    <button class="float-btn" onclick="openXiaohongshu()" title="打开小红书">
-        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path
-                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-2-2 7-7 2 2-7 7zm5-5l-2-2 2-2 2 2-2 2z"
-                fill="white" />
-        </svg>
-    </button>
 
     <script>
         function copyText(text, tipId) {
@@ -191,166 +147,6 @@
         function copyDesc() {
             let text = document.getElementById("descContent").innerText.trim();
             copyText(text, 'tipDesc');
-        }
-
-        // 小红书跳转功能 - 直接尝试打开App
-        function openXiaohongshu() {
-            // 小红书App的URL Scheme
-            const xiaohongshuLinks = {
-                // iOS URL Scheme (直接打开App)
-                iosScheme: 'xiaohongshu://',
-                // Android URL Scheme (直接打开App)
-                androidScheme: 'xiaohongshu://',
-                // Android Intent Scheme
-                androidIntent: 'intent://www.xiaohongshu.com/#Intent;scheme=xiaohongshu;package=com.xingin.xhs;end',
-                // App下载页面
-                download: 'https://www.xiaohongshu.com/download'
-            };
-
-            // 检测设备类型
-            const userAgent = navigator.userAgent.toLowerCase();
-            const isAndroid = /android/.test(userAgent);
-            const isIOS = /iphone|ipad|ipod/.test(userAgent);
-            const isWechat = /micromessenger/.test(userAgent);
-
-            // 记录App是否打开
-            let appOpened = false;
-
-            // 监听页面可见性变化来判断是否打开了App
-            const handleVisibilityChange = () => {
-                if (document.hidden) {
-                    appOpened = true;
-                }
-            };
-
-            const handlePageHide = () => {
-                appOpened = true;
-            };
-
-            // 添加事件监听
-            document.addEventListener('visibilitychange', handleVisibilityChange, { once: true });
-            window.addEventListener('pagehide', handlePageHide, { once: true });
-
-            // 设置超时，检测App是否打开
-            setTimeout(() => {
-                if (!appOpened) {
-                    // 移除事件监听
-                    document.removeEventListener('visibilitychange', handleVisibilityChange);
-                    window.removeEventListener('pagehide', handlePageHide);
-
-                    // 显示安装提示
-                    showInstallPrompt(isAndroid, isIOS, isWechat);
-                }
-            }, 1500);
-
-            // 直接尝试打开App
-            if (isIOS) {
-                // iOS: 直接使用URL Scheme打开小红书App
-                window.location.href = xiaohongshuLinks.iosScheme;
-
-            } else if (isAndroid) {
-                // Android: 尝试使用Intent Scheme打开App
-                try {
-                    // 先尝试Intent Scheme（兼容性更好）
-                    window.location.href = xiaohongshuLinks.androidIntent;
-
-                    // 备用方案：直接URL Scheme
-                    setTimeout(() => {
-                        if (!appOpened) {
-                            window.location.href = xiaohongshuLinks.androidScheme;
-                        }
-                    }, 500);
-                } catch (e) {
-                    // 如果出错，尝试直接Scheme
-                    window.location.href = xiaohongshuLinks.androidScheme;
-                }
-
-            } else {
-                // PC或其他设备：显示提示
-                showInstallPrompt(false, false, isWechat);
-            }
-        }
-
-        // 显示安装提示弹窗
-        function showInstallPrompt(isAndroid, isIOS, isWechat) {
-            // 创建弹窗
-            const modal = document.createElement('div');
-            modal.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0,0,0,0.7);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                z-index: 2000;
-            `;
-
-            const content = document.createElement('div');
-            content.style.cssText = `
-                background: white;
-                border-radius: 12px;
-                padding: 24px;
-                max-width: 320px;
-                width: 90%;
-                text-align: center;
-            `;
-
-            let message = '';
-            let buttonText = '';
-            let downloadLink = 'https://www.xiaohongshu.com/download';
-
-            if (isWechat) {
-                message = '请在浏览器中打开此页面，然后点击按钮跳转到小红书App';
-                buttonText = '知道了';
-            } else if (isIOS) {
-                message = '您尚未安装小红书App，是否前往App Store下载？';
-                buttonText = '前往下载';
-                downloadLink = 'https://apps.apple.com/cn/app/小红书/id741292507';
-            } else if (isAndroid) {
-                message = '您尚未安装小红书App，是否前往应用商店下载？';
-                buttonText = '前往下载';
-                downloadLink = 'https://www.xiaohongshu.com/download';
-            } else {
-                message = '请在手机浏览器中打开此页面，点击按钮跳转到小红书App';
-                buttonText = '知道了';
-            }
-
-            content.innerHTML = `
-                <h3 style="margin-bottom: 16px; color: #333;">打开小红书</h3>
-                <p style="margin-bottom: 24px; color: #666; line-height: 1.5;">${message}</p>
-                <div style="display: flex; gap: 12px; justify-content: center;">
-                    <button id="closeModal" style="padding: 10px 20px; background: #f0f0f0; border: none; border-radius: 6px; color: #333; cursor: pointer;">取消</button>
-                    <button id="downloadBtn" style="padding: 10px 20px; background: #ff2442; border: none; border-radius: 6px; color: white; cursor: pointer;">${buttonText}</button>
-                </div>
-            `;
-
-            modal.appendChild(content);
-            document.body.appendChild(modal);
-
-            // 关闭弹窗
-            document.getElementById('closeModal').addEventListener('click', () => {
-                document.body.removeChild(modal);
-            });
-
-            // 下载按钮点击
-            document.getElementById('downloadBtn').addEventListener('click', () => {
-                if (isWechat || (!isIOS && !isAndroid)) {
-                    document.body.removeChild(modal);
-                } else {
-                    window.open(downloadLink, '_blank');
-                    document.body.removeChild(modal);
-                }
-            });
-
-            // 点击背景关闭
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    document.body.removeChild(modal);
-                }
-            });
         }
     </script>
 </body>
