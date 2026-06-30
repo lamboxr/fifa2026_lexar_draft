@@ -14,53 +14,76 @@
         }
 
         body {
-            background: #f5f7fa;
-            padding: 16px
+            /* 阿根廷浅蓝渐变背景 */
+            background: linear-gradient(160deg, #e6f0fa 0%, #d0e3f7 100%);
+            padding: 16px;
+            min-height: 100vh;
         }
 
         .card {
-            background: #fff;
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 20px
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+            /* 蓝调柔和阴影 */
+            box-shadow: 0 4px 16px rgba(0, 82, 165, 0.12);
+            /* 阿根廷浅蓝细边框 */
+            border: 1px solid #74ACDF;
+            transition: transform 0.25s ease;
+        }
+
+        .card:active {
+            transform: translateY(-2px);
         }
 
         .label {
-            font-size: 16px;
+            font-size: 17px;
             font-weight: bold;
-            margin-bottom: 10px;
-            color: #111
+            margin-bottom: 12px;
+            /* 阿根廷深蓝标题 */
+            color: #0052A5;
+            letter-spacing: 0.5px;
         }
 
         .text-area {
             white-space: pre-wrap;
-            border: 1px solid #e2e5eb;
-            border-radius: 8px;
-            padding: 12px;
-            line-height: 1.7;
-            margin-bottom: 12px;
+            /* 蓝白渐变边框 */
+            border: 1px solid #74ACDF;
+            border-radius: 10px;
+            padding: 14px;
+            line-height: 1.75;
+            margin-bottom: 14px;
             user-select: none;
             -webkit-user-select: none;
             cursor: default;
+            /* 极浅蓝底色呼应主题 */
+            background-color: #f7fbff;
+            color: #1a1a1a;
         }
 
         .copy-btn {
-            background: #07c160;
-            color: #fff;
+            /* 阿根廷天蓝色主按钮 */
+            background: #74ACDF;
+            color: #ffffff;
             border: none;
-            padding: 8px 20px;
-            border-radius: 6px;
+            padding: 10px 24px;
+            border-radius: 8px;
             font-size: 15px;
-            transition: background 0.2s ease;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(116, 172, 223, 0.35);
         }
 
         .copy-btn:active {
-            background: #059c50;
+            background: #0052A5;
+            transform: scale(0.96);
+            box-shadow: 0 1px 4px rgba(0, 82, 165, 0.3);
         }
 
         .tip {
-            color: #07c160;
-            margin-top: 10px;
+            color: #0052A5;
+            margin-top: 12px;
+            font-weight: 500;
             display: none;
         }
     </style>
