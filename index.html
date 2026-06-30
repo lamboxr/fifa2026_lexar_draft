@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>文字分享</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui
+        }
+
+        body {
+            background: #f5f7fa;
+            padding: 16px
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px
+        }
+
+        .label {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #111
+        }
+
+        .text-area {
+            white-space: pre-wrap;
+            border: 1px solid #e2e5eb;
+            border-radius: 8px;
+            padding: 12px;
+            line-height: 1.7;
+            margin-bottom: 12px;
+            user-select: none;
+            -webkit-user-select: none;
+            cursor: default;
+        }
+
+        .copy-btn {
+            background: #07c160;
+            color: #fff;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 6px;
+            font-size: 15px;
+            transition: background 0.2s ease;
+        }
+
+        .copy-btn:active {
+            background: #059c50;
+        }
+
+        .tip {
+            color: #07c160;
+            margin-top: 10px;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <div class="label">标题</div>
+        <div id="titleContent" class="text-area">
+            这里填写你的标题文字
+        </div>
+        <button class="copy-btn" onclick="copyTitle()">复制标题</button>
+        <div id="tipTitle" class="tip">✅ 标题已复制，可直接粘贴</div>
+    </div>
+
+    <div class="card">
+        <div class="label">文案</div>
+        <div id="descContent" class="text-area">
+            这里填写正文文案
+            支持自动换行
+            多行内容格式会保留
+            测试换行
+        </div>
+        <button class="copy-btn" onclick="copyDesc()">复制文案</button>
+        <div id="tipDesc" class="tip">✅ 文案已复制，可直接粘贴</div>
+    </div>
+
+    <script>
+        function copyText(text, tipId) {
+            const tipDom = document.getElementById(tipId);
+
+            // 防止重复点击
+            if (tipDom.classList.contains('showing')) {
+                return;
+            }
+
+            // 微信兼容复制逻辑
+            const tempInput = document.createElement('textarea');
+            tempInput.value = text;
+            tempInput.style.position = 'fixed';
+            tempInput.style.left = '-9999px';
+            tempInput.style.top = '-9999px';
+            document.body.appendChild(tempInput);
+            tempInput.select();
+
+            try {
+                // 尝试两种复制方式确保兼容性
+                const copySuccess = document.execCommand('copy');
+                if (!copySuccess) {
+                    throw new Error('execCommand failed');
+                }
+            } catch (err) {
+                // execCommand失败时使用clipboard API
+                navigator.clipboard.writeText(text).catch(() => { });
+            }
+
+            document.body.removeChild(tempInput);
+
+            // 方法1：使用class
+            tipDom.classList.add('showing');
+
+            // 方法2：同时设置style确保显示
+            tipDom.style.display = 'block';
+            tipDom.style.visibility = 'visible';
+            tipDom.style.opacity = '1';
+
+            // 添加一些日志便于调试
+            console.log('复制成功，显示提示');
+
+            // 2秒后隐藏
+            setTimeout(function () {
+                tipDom.classList.remove('showing');
+                tipDom.style.display = 'none';
+                tipDom.style.visibility = 'hidden';
+                tipDom.style.opacity = '0';
+                console.log('隐藏提示');
+            }, 2000);
+        }
+
+        function copyTitle() {
+            let text = document.getElementById("titleContent").innerText.trim();
+            copyText(text, 'tipTitle');
+        }
+        function copyDesc() {
+            let text = document.getElementById("descContent").innerText.trim();
+            copyText(text, 'tipDesc');
+        }
+    </script>
+</body>
+
+</html>
