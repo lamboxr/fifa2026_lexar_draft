@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文案管理系统 - 管理后台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(160deg, #e6f0fa 0%, #d0e3f7 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 82, 165, 0.15);
+            border: 1px solid #74ACDF;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f7ff;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #0052A5;
+            margin-right: 15px;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 16px;
+            font-weight: 600;
+            color: #0052A5;
+            margin-bottom: 10px;
+        }
+
+        .form-textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 16px;
+            border: 2px solid #d0e3f7;
+            border-radius: 10px;
+            font-size: 15px;
+            line-height: 1.6;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+            background-color: #f7fbff;
+        }
+
+        .form-textarea:focus {
+            outline: none;
+            border-color: #74ACDF;
+            box-shadow: 0 0 0 3px rgba(116, 172, 223, 0.2);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #f0f7ff;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+
+        .btn-primary {
+            background: #74ACDF;
+            color: white;
+            box-shadow: 0 4px 12px rgba(116, 172, 223, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: #5a97d4;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(116, 172, 223, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f7ff;
+            color: #0052A5;
+            border: 2px solid #d0e3f7;
+        }
+
+        .btn-secondary:hover {
+            background: #e1f0ff;
+            border-color: #74ACDF;
+        }
+
+        .status-message {
+            margin-top: 20px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .status-success {
+            background-color: #e8f7e8;
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
+            display: block;
+        }
+
+        .status-error {
+            background-color: #ffebee;
+            color: #c62828;
+            border: 1px solid #ffcdd2;
+            display: block;
+        }
+
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 25px;
+            color: #74ACDF;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .preview-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f7fbff;
+            border-radius: 10px;
+            border: 2px solid #d0e3f7;
+        }
+
+        .preview-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #0052A5;
+            margin-bottom: 15px;
+        }
+
+        .preview-content {
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e6f0fa;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">📝</div>
+            <div>
+                <h1 class="title">文案管理系统</h1>
+                <div class="subtitle">编辑并保存你的小红书文案</div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">标题</label>
+            <textarea id="titleInput" class="form-textarea" placeholder="请输入标题..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">文案内容</label>
+            <textarea id="descriptionInput" class="form-textarea" placeholder="请输入文案内容..."></textarea>
+        </div>
+
+        <div class="preview-section">
+            <div class="preview-title">实时预览</div>
+            <div class="preview-content">
+                <strong>标题预览:</strong><br>
+                <span id="titlePreview">加载中...</span><br><br>
+                <strong>文案预览:</strong><br>
+                <span id="descriptionPreview">加载中...</span>
+            </div>
+        </div>
+
+        <div id="statusMessage" class="status-message"></div>
+
+        <div class="btn-group">
+            <button id="loadBtn" class="btn btn-secondary" onclick="loadTexts()">
+                🔄 加载文案
+            </button>
+            <button id="saveBtn" class="btn btn-primary" onclick="saveTexts()">
+                💾 保存文案
+            </button>
+        </div>
+
+        <a href="index.html" class="back-link">← 返回查看页面</a>
+    </div>
+
+    <script>
+        // DOM元素
+        const titleInput = document.getElementById('titleInput');
+        const descriptionInput = document.getElementById('descriptionInput');
+        const titlePreview = document.getElementById('titlePreview');
+        const descriptionPreview = document.getElementById('descriptionPreview');
+        const statusMessage = document.getElementById('statusMessage');
+        const loadBtn = document.getElementById('loadBtn');
+        const saveBtn = document.getElementById('saveBtn');
+
+        // 存储键名（与index.html保持一致）
+        const TEXT_STORAGE_KEY = 'xiaohongshu_texts';
+        
+        // 默认文案数据
+        const defaultTexts = {
+            title: "雷克沙陪我们看球！🇦🇷阿根廷球迷线下观赛太燃了⚽",
+            description: "蓝白信仰集结，全场一起为🇦🇷阿根廷呐喊！\n雷克沙存储，🏆冠军之选，用存储留住每一个热血瞬间。\n阿根廷🇦🇷加油，全力冲胜！\n@Lexar雷克沙 #雷克沙 #雷克沙嘉年华"
+        };
+
+        // 获取保存的文案数据
+        function getSavedTexts() {
+            const saved = localStorage.getItem(TEXT_STORAGE_KEY);
+            return saved ? JSON.parse(saved) : defaultTexts;
+        }
+
+        // 保存文案数据到本地存储
+        function saveTextsToStorage(texts) {
+            localStorage.setItem(TEXT_STORAGE_KEY, JSON.stringify(texts));
+        }
+
+        // 更新预览
+        function updatePreview() {
+            titlePreview.textContent = titleInput.value || '(无内容)';
+            descriptionPreview.textContent = descriptionInput.value || '(无内容)';
+        }
+
+        // 显示状态消息
+        function showMessage(message, type = 'success') {
+            statusMessage.textContent = message;
+            statusMessage.className = `status-message status-${type}`;
+            setTimeout(() => {
+                statusMessage.style.display = 'none';
+            }, 5000);
+        }
+
+        // 设置加载状态
+        function setLoading(isLoading) {
+            if (isLoading) {
+                loadBtn.classList.add('loading');
+                saveBtn.classList.add('loading');
+                loadBtn.innerHTML = '⏳ 加载中...';
+                saveBtn.innerHTML = '⏳ 处理中...';
+            } else {
+                loadBtn.classList.remove('loading');
+                saveBtn.classList.remove('loading');
+                loadBtn.innerHTML = '🔄 加载文案';
+                saveBtn.innerHTML = '💾 保存文案';
+            }
+        }
+
+        // 加载文案数据
+        function loadTexts() {
+            try {
+                setLoading(true);
+                
+                const data = getSavedTexts();
+                
+                titleInput.value = data.title || '';
+                descriptionInput.value = data.description || '';
+                updatePreview();
+                
+                showMessage('✅ 文案加载成功', 'success');
+            } catch (error) {
+                console.error('加载失败:', error);
+                showMessage(`❌ 加载失败: ${error.message}`, 'error');
+            } finally {
+                setTimeout(() => setLoading(false), 300);
+            }
+        }
+
+        // 保存文案数据
+        function saveTexts() {
+            try {
+                const title = titleInput.value.trim();
+                const description = descriptionInput.value.trim();
+                
+                if (!title || !description) {
+                    showMessage('⚠️ 标题和文案不能为空', 'error');
+                    return;
+                }
+                
+                setLoading(true);
+                
+                const texts = { title, description };
+                saveTextsToStorage(texts);
+                updatePreview();
+                
+                showMessage('✅ 文案保存成功！已保存到浏览器本地存储', 'success');
+            } catch (error) {
+                console.error('保存失败:', error);
+                showMessage(`❌ 保存失败: ${error.message}`, 'error');
+            } finally {
+                setTimeout(() => setLoading(false), 300);
+            }
+        }
+
+        // 输入时实时更新预览
+        titleInput.addEventListener('input', updatePreview);
+        descriptionInput.addEventListener('input', updatePreview);
+
+        // 页面加载时自动加载文案
+        document.addEventListener('DOMContentLoaded', () => {
+            loadTexts();
+        });
+    </script>
+</body>
+</html>
