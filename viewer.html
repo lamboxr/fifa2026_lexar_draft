@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文案预览</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(160deg, #e6f0fa 0%, #d0e3f7 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 82, 165, 0.15);
+            border: 1px solid #74ACDF;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f7ff;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #0052A5;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .preview-card {
+            margin-bottom: 24px;
+            padding: 20px;
+            background: #f7fbff;
+            border-radius: 10px;
+            border: 2px solid #d0e3f7;
+        }
+
+        .preview-label {
+            display: block;
+            font-size: 16px;
+            font-weight: 600;
+            color: #0052A5;
+            margin-bottom: 10px;
+        }
+
+        .preview-content {
+            white-space: pre-wrap;
+            padding: 16px;
+            border-radius: 8px;
+            background: white;
+            border: 1px solid #e6f0fa;
+            font-size: 15px;
+            line-height: 1.6;
+            min-height: 80px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #f0f7ff;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+
+        .btn-primary {
+            background: #74ACDF;
+            color: white;
+            box-shadow: 0 4px 12px rgba(116, 172, 223, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: #5a97d4;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(116, 172, 223, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f7ff;
+            color: #0052A5;
+            border: 2px solid #d0e3f7;
+        }
+
+        .btn-secondary:hover {
+            background: #e1f0ff;
+            border-color: #74ACDF;
+        }
+
+        .btn-success {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #388E3C;
+        }
+
+        .btn-warning {
+            background: #FF9800;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #F57C00;
+        }
+
+        .status-message {
+            margin-top: 20px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .status-success {
+            background-color: #e8f7e8;
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
+            display: block;
+        }
+
+        .status-error {
+            background-color: #ffebee;
+            color: #c62828;
+            border: 1px solid #ffcdd2;
+            display: block;
+        }
+
+        .status-info {
+            background-color: #e3f2fd;
+            color: #1565c0;
+            border: 1px solid #bbdefb;
+            display: block;
+        }
+
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .last-update {
+            font-size: 12px;
+            color: #666;
+            margin-top: 8px;
+            text-align: right;
+        }
+
+        .data-source {
+            font-size: 12px;
+            color: #999;
+            margin-top: 4px;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1 class="title">文案预览</h1>
+                <div class="subtitle">预览并发布编辑后的文案</div>
+            </div>
+            <div>
+                <button id="editBtn" class="btn btn-secondary" onclick="goToEdit()">
+                    ✏️ 去编辑
+                </button>
+            </div>
+        </div>
+
+        <div class="preview-card">
+            <label class="preview-label">标题预览</label>
+            <div id="titlePreview" class="preview-content">加载中...</div>
+            <div id="titleSource" class="data-source">数据来源: 加载中...</div>
+        </div>
+
+        <div class="preview-card">
+            <label class="preview-label">文案预览</label>
+            <div id="descPreview" class="preview-content">加载中...</div>
+            <div id="descSource" class="data-source">数据来源: 加载中...</div>
+        </div>
+
+        <div class="last-update" id="lastUpdate">
+            最后更新时间: 加载中...
+        </div>
+
+        <div id="statusMessage" class="status-message"></div>
+
+        <div class="btn-group">
+            <button id="refreshBtn" class="btn btn-secondary" onclick="refreshData()">
+                🔄 刷新
+            </button>
+            <button id="publishBtn" class="btn btn-success" onclick="publishToProduction()">
+                🚀 发布
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // DOM元素
+        const titlePreview = document.getElementById('titlePreview');
+        const descPreview = document.getElementById('descPreview');
+        const titleSource = document.getElementById('titleSource');
+        const descSource = document.getElementById('descSource');
+        const lastUpdate = document.getElementById('lastUpdate');
+        const statusMessage = document.getElementById('statusMessage');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const publishBtn = document.getElementById('publishBtn');
+
+        // 服务器文件路径
+        const TEMP_FILE_URL = '/data/xiaohongshu_temp.json';  // 临时文件
+        const PROD_FILE_URL = '/data/xiaohongshu_data.json';   // 正式文件
+        
+        // 默认文案数据
+        const defaultTexts = {
+            title: "雷克沙陪我们看球！🇦🇷阿根廷球迷线下观赛太燃了⚽",
+            description: "蓝白信仰集结，全场一起为🇦🇷阿根廷呐喊！\n雷克沙存储，🏆冠军之选，用存储留住每一个热血瞬间。\n阿根廷🇦🇷加油，全力冲胜！\n@Lexar雷克沙 #雷克沙 #雷克沙嘉年华"
+        };
+
+        // 数据状态
+        let currentData = null;
+        let dataSource = 'unknown';
+        let lastUpdateTime = null;
+
+        // 显示状态消息
+        function showMessage(message, type = 'info') {
+            statusMessage.textContent = message;
+            statusMessage.className = `status-message status-${type}`;
+        }
+
+        // 设置按钮加载状态
+        function setLoading(button, isLoading) {
+            if (isLoading) {
+                button.classList.add('loading');
+                const originalText = button.innerHTML;
+                button.setAttribute('data-original-text', originalText);
+                button.innerHTML = '⏳ 处理中...';
+            } else {
+                button.classList.remove('loading');
+                const originalText = button.getAttribute('data-original-text');
+                if (originalText) {
+                    button.innerHTML = originalText;
+                }
+            }
+        }
+
+        // 更新时间显示
+        function updateTimeDisplay() {
+            if (lastUpdateTime) {
+                const timeStr = lastUpdateTime.toLocaleString('zh-CN');
+                lastUpdate.textContent = `最后更新时间: ${timeStr}`;
+            }
+        }
+
+        // 转到编辑页面
+        function goToEdit() {
+            window.location.href = 'editor.html';
+        }
+
+        // 刷新数据
+        async function refreshData() {
+            try {
+                setLoading(refreshBtn, true);
+                showMessage('正在刷新数据...', 'info');
+                
+                // 优先尝试加载临时文件
+                let response = await fetch(TEMP_FILE_URL);
+                let source = '临时文件';
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    currentData = data;
+                    dataSource = 'temp';
+                } else {
+                    // 如果临时文件不存在，尝试加载正式文件
+                    response = await fetch(PROD_FILE_URL);
+                    source = '正式文件';
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        currentData = data;
+                        dataSource = 'prod';
+                    } else {
+                        // 如果都没有，使用默认数据
+                        currentData = defaultTexts;
+                        dataSource = 'default';
+                        source = '默认数据';
+                    }
+                }
+                
+                // 更新预览显示
+                titlePreview.textContent = currentData.title || defaultTexts.title;
+                descPreview.textContent = currentData.description || defaultTexts.description;
+                titleSource.textContent = `数据来源: ${source}`;
+                descSource.textContent = `数据来源: ${source}`;
+                
+                // 更新时间
+                lastUpdateTime = new Date();
+                updateTimeDisplay();
+                
+                showMessage(`✅ 刷新成功！数据来源: ${source}`, 'success');
+                
+                // 根据数据来源决定是否启用发布按钮
+                if (dataSource === 'temp') {
+                    publishBtn.disabled = false;
+                    publishBtn.style.opacity = '1';
+                    showMessage('📋 检测到临时文件，可以发布到正式环境', 'info');
+                } else if (dataSource === 'prod') {
+                    publishBtn.disabled = true;
+                    publishBtn.style.opacity = '0.6';
+                    showMessage('✅ 当前显示的是正式环境数据，无需发布', 'info');
+                } else {
+                    publishBtn.disabled = true;
+                    publishBtn.style.opacity = '0.6';
+                    showMessage('📝 当前显示的是默认数据，请先编辑文案', 'info');
+                }
+                
+            } catch (error) {
+                console.error('刷新数据失败:', error);
+                showMessage(`❌ 刷新失败: ${error.message}`, 'error');
+            } finally {
+                setLoading(refreshBtn, false);
+            }
+        }
+
+        // 发布到正式环境
+        async function publishToProduction() {
+            try {
+                if (!currentData || dataSource !== 'temp') {
+                    showMessage('⚠️ 没有可发布的临时数据', 'error');
+                    return;
+                }
+                
+                setLoading(publishBtn, true);
+                showMessage('正在发布数据到正式环境...', 'info');
+                
+                // 将临时文件数据保存到正式文件
+                const response = await fetch(PROD_FILE_URL, {
+                    method: 'PUT',
+                    body: JSON.stringify(currentData, null, 2),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    // 更新数据源状态
+                    dataSource = 'prod';
+                    titleSource.textContent = '数据来源: 正式文件（已发布）';
+                    descSource.textContent = '数据来源: 正式文件（已发布）';
+                    
+                    // 更新时间
+                    lastUpdateTime = new Date();
+                    updateTimeDisplay();
+                    
+                    // 禁用发布按钮
+                    publishBtn.disabled = true;
+                    publishBtn.style.opacity = '0.6';
+                    
+                    showMessage('✅ 发布成功！数据已同步到正式环境，现在所有人可以看到更新', 'success');
+                } else {
+                    throw new Error(`发布失败: HTTP ${response.status}`);
+                }
+            } catch (error) {
+                console.error('发布失败:', error);
+                showMessage(`❌ 发布失败: ${error.message}`, 'error');
+            } finally {
+                setLoading(publishBtn, false);
+            }
+        }
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            // 初始加载数据
+            refreshData();
+            
+            // 设置自动刷新（每30秒）
+            setInterval(refreshData, 30000);
+        });
+    </script>
+</body>
+</html>

@@ -134,20 +134,20 @@
     </div>
 
     <div class="card">
-        <div class="label">文案</div>
+        <div class="label">正文</div>
         <div id="descContent" class="text-area">
 蓝白信仰集结，全场一起为🇦🇷阿根廷呐喊！
 雷克沙存储，🏆冠军之选，用存储留住每一个热血瞬间。
 阿根廷🇦🇷加油，全力冲胜！
 @Lexar雷克沙 #雷克沙 #雷克沙嘉年华
         </div>
-        <button class="copy-btn" onclick="copyDesc()">复制文案</button>
-        <div id="tipDesc" class="tip">✅ 文案已复制，去小红书📕粘贴吧</div>
+        <button class="copy-btn" onclick="copyDesc()">复制正文</button>
+        <div id="tipDesc" class="tip">✅ 正文已复制，去小红书📕粘贴吧</div>
     </div>
 
     <script>
-        // 文案数据管理
-        const TEXT_STORAGE_KEY = 'xiaohongshu_texts';
+        // 服务器正式文件路径（只读正式数据）
+        const PROD_FILE_URL = '/data/xiaohongshu_data.json';
         
         // 默认文案数据
         const defaultTexts = {
@@ -155,21 +155,33 @@
             description: "蓝白信仰集结，全场一起为🇦🇷阿根廷呐喊！\n雷克沙存储，🏆冠军之选，用存储留住每一个热血瞬间。\n阿根廷🇦🇷加油，全力冲胜！\n@Lexar雷克沙 #雷克沙 #雷克沙嘉年华"
         };
 
-        // 获取保存的文案数据
-        function getSavedTexts() {
-            const saved = localStorage.getItem(TEXT_STORAGE_KEY);
-            return saved ? JSON.parse(saved) : defaultTexts;
-        }
-
-        // 页面加载时获取文案数据
-        document.addEventListener('DOMContentLoaded', function() {
-            const texts = getSavedTexts();
-            
-            // 更新页面内容
-            document.getElementById('titleContent').textContent = texts.title;
-            document.getElementById('descContent').textContent = texts.description;
-            
-            console.log('文案加载成功');
+        // 页面加载时从服务器获取正式文案数据
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                const response = await fetch(PROD_FILE_URL);
+                
+                if (response.ok) {
+                    const texts = await response.json();
+                    
+                    // 更新页面内容
+                    document.getElementById('titleContent').textContent = texts.title || defaultTexts.title;
+                    document.getElementById('descContent').textContent = texts.description || defaultTexts.description;
+                    
+                    console.log('文案加载成功：从正式文件读取');
+                } else if (response.status === 404) {
+                    // 文件不存在，使用默认数据
+                    document.getElementById('titleContent').textContent = defaultTexts.title;
+                    document.getElementById('descContent').textContent = defaultTexts.description;
+                    console.log('文案加载成功：使用默认数据（正式文件不存在）');
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                console.error('文案加载失败:', error);
+                // 加载失败时使用默认数据
+                document.getElementById('titleContent').textContent = defaultTexts.title;
+                document.getElementById('descContent').textContent = defaultTexts.description;
+            }
         });
 
         function copyText(text, tipId) {

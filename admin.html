@@ -262,25 +262,14 @@
         const loadBtn = document.getElementById('loadBtn');
         const saveBtn = document.getElementById('saveBtn');
 
-        // 存储键名（与index.html保持一致）
-        const TEXT_STORAGE_KEY = 'xiaohongshu_texts';
+        // 服务器文件路径（与index.html保持一致）
+        const TEXT_FILE_URL = '/data/xiaohongshu_data.json';
         
         // 默认文案数据
         const defaultTexts = {
             title: "雷克沙陪我们看球！🇦🇷阿根廷球迷线下观赛太燃了⚽",
             description: "蓝白信仰集结，全场一起为🇦🇷阿根廷呐喊！\n雷克沙存储，🏆冠军之选，用存储留住每一个热血瞬间。\n阿根廷🇦🇷加油，全力冲胜！\n@Lexar雷克沙 #雷克沙 #雷克沙嘉年华"
         };
-
-        // 获取保存的文案数据
-        function getSavedTexts() {
-            const saved = localStorage.getItem(TEXT_STORAGE_KEY);
-            return saved ? JSON.parse(saved) : defaultTexts;
-        }
-
-        // 保存文案数据到本地存储
-        function saveTextsToStorage(texts) {
-            localStorage.setItem(TEXT_STORAGE_KEY, JSON.stringify(texts));
-        }
 
         // 更新预览
         function updatePreview() {
@@ -312,18 +301,31 @@
             }
         }
 
-        // 加载文案数据
-        function loadTexts() {
+        // 从服务器加载文案数据（使用GET请求）
+        async function loadTexts() {
             try {
                 setLoading(true);
                 
-                const data = getSavedTexts();
+                const response = await fetch(TEXT_FILE_URL);
                 
-                titleInput.value = data.title || '';
-                descriptionInput.value = data.description || '';
-                updatePreview();
-                
-                showMessage('✅ 文案加载成功', 'success');
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    titleInput.value = data.title || '';
+                    descriptionInput.value = data.description || '';
+                    updatePreview();
+                    
+                    showMessage('✅ 文案加载成功（从服务器）', 'success');
+                } else if (response.status === 404) {
+                    // 文件不存在，使用默认数据
+                    titleInput.value = defaultTexts.title;
+                    descriptionInput.value = defaultTexts.description;
+                    updatePreview();
+                    
+                    showMessage('📝 使用默认文案（服务器文件不存在）', 'success');
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
             } catch (error) {
                 console.error('加载失败:', error);
                 showMessage(`❌ 加载失败: ${error.message}`, 'error');
@@ -332,8 +334,13 @@
             }
         }
 
-        // 保存文案数据
-        function saveTexts() {
+        // 检测是否在微信内置浏览器
+        function isWechatBrowser() {
+            return /MicroMessenger/i.test(navigator.userAgent);
+        }
+
+        // 保存文案数据到服务器（根据浏览器类型选择方法）
+        async function saveTexts() {
             try {
                 const title = titleInput.value.trim();
                 const description = descriptionInput.value.trim();
@@ -346,13 +353,45 @@
                 setLoading(true);
                 
                 const texts = { title, description };
-                saveTextsToStorage(texts);
-                updatePreview();
+                let response;
                 
-                showMessage('✅ 文案保存成功！已保存到浏览器本地存储', 'success');
+                // 根据浏览器类型选择保存方法
+                if (isWechatBrowser()) {
+                    // 微信浏览器：使用POST方法（更兼容）
+                    showMessage('⏳ 检测到微信浏览器，使用兼容模式保存...', 'success');
+                    response = await fetch('/save-texts', {
+                        method: 'POST',
+                        body: JSON.stringify({ file: 'xiaohongshu_data.json', data: texts }),
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                } else {
+                    // 普通浏览器：直接使用PUT方法
+                    response = await fetch(TEXT_FILE_URL, {
+                        method: 'PUT',
+                        body: JSON.stringify(texts, null, 2),
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                }
+                
+                if (response.ok) {
+                    updatePreview();
+                    showMessage('✅ 文案保存成功！已保存到服务器磁盘', 'success');
+                } else {
+                    throw new Error(`保存失败: HTTP ${response.status}`);
+                }
             } catch (error) {
                 console.error('保存失败:', error);
-                showMessage(`❌ 保存失败: ${error.message}`, 'error');
+                
+                // 微信浏览器保存失败时的降级方案
+                if (isWechatBrowser()) {
+                    showMessage('⚠️ 微信浏览器保存受限，建议使用其他浏览器编辑', 'error');
+                } else {
+                    showMessage(`❌ 保存失败: ${error.message}`, 'error');
+                }
             } finally {
                 setTimeout(() => setLoading(false), 300);
             }
@@ -362,7 +401,7 @@
         titleInput.addEventListener('input', updatePreview);
         descriptionInput.addEventListener('input', updatePreview);
 
-        // 页面加载时自动加载文案
+        // 页面加载时自动从服务器加载文案
         document.addEventListener('DOMContentLoaded', () => {
             loadTexts();
         });

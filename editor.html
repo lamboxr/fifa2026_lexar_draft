@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文案编辑器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(160deg, #e6f0fa 0%, #d0e3f7 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 82, 165, 0.15);
+            border: 1px solid #74ACDF;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f7ff;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #0052A5;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 16px;
+            font-weight: 600;
+            color: #0052A5;
+            margin-bottom: 10px;
+        }
+
+        .form-textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 16px;
+            border: 2px solid #d0e3f7;
+            border-radius: 10px;
+            font-size: 15px;
+            line-height: 1.6;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+            background-color: #f7fbff;
+        }
+
+        .form-textarea:read-only {
+            background-color: #f9f9f9;
+            border-color: #e0e0e0;
+            cursor: not-allowed;
+        }
+
+        .form-textarea:focus {
+            outline: none;
+            border-color: #74ACDF;
+            box-shadow: 0 0 0 3px rgba(116, 172, 223, 0.2);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #f0f7ff;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+
+        .btn-primary {
+            background: #74ACDF;
+            color: white;
+            box-shadow: 0 4px 12px rgba(116, 172, 223, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: #5a97d4;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(116, 172, 223, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f7ff;
+            color: #0052A5;
+            border: 2px solid #d0e3f7;
+        }
+
+        .btn-secondary:hover {
+            background: #e1f0ff;
+            border-color: #74ACDF;
+        }
+
+        .btn-success {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #388E3C;
+        }
+
+        .btn-warning {
+            background: #FF9800;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #F57C00;
+        }
+
+        .status-message {
+            margin-top: 20px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .status-success {
+            background-color: #e8f7e8;
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
+            display: block;
+        }
+
+        .status-error {
+            background-color: #ffebee;
+            color: #c62828;
+            border: 1px solid #ffcdd2;
+            display: block;
+        }
+
+        .status-info {
+            background-color: #e3f2fd;
+            color: #1565c0;
+            border: 1px solid #bbdefb;
+            display: block;
+        }
+
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .edit-hint {
+            font-size: 14px;
+            color: #FF9800;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .edit-hint:before {
+            content: "💡";
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1 class="title">文案编辑器</h1>
+                <div class="subtitle">编辑并预览你的小红书文案</div>
+            </div>
+            <div class="action-buttons">
+                <button id="previewBtn" class="btn btn-secondary" onclick="goToPreview()">
+                    👁️ 去预览
+                </button>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">标题</label>
+            <textarea id="titleInput" class="form-textarea" placeholder="请输入标题..." readonly></textarea>
+            <div id="titleHint" class="edit-hint">点击下方"编辑"按钮开始编辑</div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">文案内容</label>
+            <textarea id="descriptionInput" class="form-textarea" placeholder="请输入文案内容..." readonly></textarea>
+            <div id="descHint" class="edit-hint">点击下方"编辑"按钮开始编辑</div>
+        </div>
+
+        <div id="statusMessage" class="status-message"></div>
+
+        <div class="btn-group">
+            <button id="editBtn" class="btn btn-warning" onclick="enableEdit()">
+                ✏️ 编辑
+            </button>
+            <button id="saveBtn" class="btn btn-primary hidden" onclick="saveToTemp()">
+                💾 保存
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // DOM元素
+        const titleInput = document.getElementById('titleInput');
+        const descriptionInput = document.getElementById('descriptionInput');
+        const titleHint = document.getElementById('titleHint');
+        const descHint = document.getElementById('descHint');
+        const statusMessage = document.getElementById('statusMessage');
+        const editBtn = document.getElementById('editBtn');
+        const saveBtn = document.getElementById('saveBtn');
+        const previewBtn = document.getElementById('previewBtn');
+
+        // 服务器文件路径
+        const TEMP_FILE_URL = '/data/xiaohongshu_temp.json';  // 临时文件
+        const PROD_FILE_URL = '/data/xiaohongshu_data.json';   // 正式文件
+        
+        // 默认文案数据
+        const defaultTexts = {
+            title: "雷克沙陪我们看球！🇦🇷阿根廷球迷线下观赛太燃了⚽",
+            description: "蓝白信仰集结，全场一起为🇦🇷阿根廷呐喊！\n雷克沙存储，🏆冠军之选，用存储留住每一个热血瞬间。\n阿根廷🇦🇷加油，全力冲胜！\n@Lexar雷克沙 #雷克沙 #雷克沙嘉年华"
+        };
+
+        // 编辑状态管理
+        let isEditing = false;
+
+        // 显示状态消息
+        function showMessage(message, type = 'info') {
+            statusMessage.textContent = message;
+            statusMessage.className = `status-message status-${type}`;
+        }
+
+        // 设置按钮状态
+        function setButtonsState(editing) {
+            if (editing) {
+                // 编辑模式：隐藏编辑和预览按钮，显示保存按钮
+                editBtn.classList.add('hidden');
+                previewBtn.classList.add('hidden');
+                saveBtn.classList.remove('hidden');
+                
+                // 更新提示
+                titleHint.textContent = '可编辑状态';
+                descHint.textContent = '可编辑状态';
+            } else {
+                // 只读模式：显示编辑和预览按钮，隐藏保存按钮
+                editBtn.classList.remove('hidden');
+                previewBtn.classList.remove('hidden');
+                saveBtn.classList.add('hidden');
+                
+                // 更新提示
+                titleHint.textContent = '点击下方"编辑"按钮开始编辑';
+                descHint.textContent = '点击下方"编辑"按钮开始编辑';
+            }
+        }
+
+        // 启用编辑模式
+        function enableEdit() {
+            isEditing = true;
+            titleInput.readOnly = false;
+            descriptionInput.readOnly = false;
+            setButtonsState(true);
+            showMessage('已进入编辑模式，请修改文案内容', 'info');
+        }
+
+        // 禁用编辑模式
+        function disableEdit() {
+            isEditing = false;
+            titleInput.readOnly = true;
+            descriptionInput.readOnly = true;
+            setButtonsState(false);
+            showMessage('', 'info'); // 清空消息
+        }
+
+        // 保存到临时文件
+        async function saveToTemp() {
+            try {
+                const title = titleInput.value.trim();
+                const description = descriptionInput.value.trim();
+                
+                if (!title || !description) {
+                    showMessage('⚠️ 标题和文案不能为空', 'error');
+                    return;
+                }
+                
+                // 显示保存状态
+                saveBtn.classList.add('loading');
+                saveBtn.innerHTML = '⏳ 保存中...';
+                
+                const texts = { title, description };
+                
+                // 使用PUT请求保存到临时文件
+                const response = await fetch(TEMP_FILE_URL, {
+                    method: 'PUT',
+                    body: JSON.stringify(texts, null, 2),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    // 保存成功，切换回只读模式
+                    disableEdit();
+                    showMessage('✅ 保存成功！已保存到临时文件', 'success');
+                } else {
+                    throw new Error(`保存失败: HTTP ${response.status}`);
+                }
+            } catch (error) {
+                console.error('保存失败:', error);
+                showMessage(`❌ 保存失败: ${error.message}`, 'error');
+            } finally {
+                saveBtn.classList.remove('loading');
+                saveBtn.innerHTML = '💾 保存';
+            }
+        }
+
+        // 转到预览页面
+        function goToPreview() {
+            window.location.href = 'viewer.html';
+        }
+
+        // 从服务器加载数据
+        async function loadData() {
+            try {
+                // 优先尝试加载临时文件
+                let response = await fetch(TEMP_FILE_URL);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    titleInput.value = data.title || defaultTexts.title;
+                    descriptionInput.value = data.description || defaultTexts.description;
+                    showMessage('✅ 已加载临时文件中的文案', 'success');
+                    return;
+                }
+                
+                // 如果临时文件不存在，尝试加载正式文件
+                response = await fetch(PROD_FILE_URL);
+                if (response.ok) {
+                    const data = await response.json();
+                    titleInput.value = data.title || defaultTexts.title;
+                    descriptionInput.value = data.description || defaultTexts.description;
+                    showMessage('📋 已加载正式文件中的文案', 'info');
+                    return;
+                }
+                
+                // 如果都没有，使用默认数据
+                titleInput.value = defaultTexts.title;
+                descriptionInput.value = defaultTexts.description;
+                showMessage('📝 使用默认文案数据', 'info');
+                
+            } catch (error) {
+                console.error('加载数据失败:', error);
+                titleInput.value = defaultTexts.title;
+                descriptionInput.value = defaultTexts.description;
+                showMessage('⚠️ 加载失败，使用默认文案', 'error');
+            }
+        }
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            disableEdit(); // 初始为只读模式
+        });
+    </script>
+</body>
+</html>
