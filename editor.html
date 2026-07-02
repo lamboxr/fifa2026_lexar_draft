@@ -209,7 +209,7 @@
         <div class="header">
             <div>
                 <h1 class="title">文案编辑器</h1>
-                <div class="subtitle">编辑并预览你的小红书文案</div>
+                <div class="subtitle">编辑文案草稿</div>
             </div>
             <div class="action-buttons">
                 <button id="previewBtn" class="btn btn-secondary" onclick="goToPreview()">
@@ -225,7 +225,7 @@
         </div>
 
         <div class="form-group">
-            <label class="form-label">文案内容</label>
+            <label class="form-label">正文</label>
             <textarea id="descriptionInput" class="form-textarea" placeholder="请输入文案内容..." readonly></textarea>
             <div id="descHint" class="edit-hint">点击下方"编辑"按钮开始编辑</div>
         </div>
@@ -320,7 +320,7 @@
                 const description = descriptionInput.value.trim();
                 
                 if (!title || !description) {
-                    showMessage('⚠️ 标题和文案不能为空', 'error');
+                    showMessage('⚠️ 标题和正文不能为空', 'error');
                     return;
                 }
                 
